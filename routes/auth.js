@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
 const User = mongoose.model("User");
+const bcrypt = require("bcrypt");
 
 router.get("/", (req, res) => {
   res.send("hello");
@@ -17,16 +18,19 @@ router.post("/signup", (req, res) => {
       if (savedUser) {
         return res.status(422).send({ error: "user already exists" });
       }
-      const user = new User({
-        email,
-        name,
-        password
+      bcrypt.hash(password, 12).then(hashedPassword => {
+        const user = new User({
+          email,
+          name,
+          password:hashedPassword
+        });
+        user
+          .save()
+          .then(user => {
+            res.json({ message: "saved successfully" });
+          })
+          .catch(error => console.log(error));
       });
-      user.save()
-        .then(user => {
-          res.json({ message: "saved successfully" });
-        })
-        .catch(error => console.log(error));
     })
     .catch(error => console.log(error));
 });
