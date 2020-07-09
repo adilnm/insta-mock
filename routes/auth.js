@@ -22,7 +22,7 @@ router.post("/signup", (req, res) => {
         const user = new User({
           email,
           name,
-          password:hashedPassword
+          password: hashedPassword
         });
         user
           .save()
@@ -35,4 +35,31 @@ router.post("/signup", (req, res) => {
     .catch(error => console.log(error));
 });
 
+router.post("/signin", (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res
+      .status(422)
+      .json({ error: "Please enter correct email and password" });
+  }
+  User.findOne({ email: email }).then(savedUser => {
+    if (!savedUser) {
+      res.status(402).json({ error: "Invalid Email and/or password" });
+    }
+    bcrypt
+      .compare(password, savedUser.password)
+      .then(doMatch => {
+        if (doMatch) {
+          res.json({ message: "success" });
+        } else {
+          return res
+            .status(402)
+            .json({ error: "Invalid Email and/or password" });
+        }
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  });
+});
 module.exports = router;
