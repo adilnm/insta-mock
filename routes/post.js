@@ -27,9 +27,20 @@ router.post("/createpost", requireLogin, (req, res) => {
 
 router.get("/allposts", (req, res) => {
   Post.find()
-    .populate("postedBy","_id name") //Show the user info only the name & id
+    .populate("postedBy", "_id name") //Show the user info only the name & id
     .then(posts => {
       res.json({ posts });
+    })
+    .catch(error => {
+      console.log(error);
+    });
+});
+
+router.get("/myposts",requireLogin, (req, res) => {
+  Post.find({ postedBy: req.user._id })
+    .populate("PostedBy", "_id name")
+    .then(myPost => {
+      res.json({ myPost });
     })
     .catch(error => {
       console.log(error);
