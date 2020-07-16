@@ -5,14 +5,15 @@ const requireLogin = require("../middleware/requireLogin");
 const Post = mongoose.model("Post");
 
 router.post("/createpost", requireLogin, (req, res) => {
-  const { title, body } = req.body;
-  if (!title || !body) {
+  const { title, body, pic } = req.body;
+  if (!title || !body ||!pic) {
     return res.status(422).json({ error: "please add all the fields" });
   }
   req.user.password = undefined; //remove the user password from the returned post
   const post = new Post({
     title,
     body,
+    photo:pic,
     postedBy: req.user
   });
   post
@@ -36,7 +37,7 @@ router.get("/allposts", (req, res) => {
     });
 });
 
-router.get("/myposts",requireLogin, (req, res) => {
+router.get("/myposts", requireLogin, (req, res) => {
   Post.find({ postedBy: req.user._id })
     .populate("PostedBy", "_id name")
     .then(myPost => {
