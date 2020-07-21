@@ -6,14 +6,14 @@ const Post = mongoose.model("Post");
 
 router.post("/createpost", requireLogin, (req, res) => {
   const { title, body, pic } = req.body;
-  if (!title || !body ||!pic) {
+  if (!title || !body || !pic) {
     return res.status(422).json({ error: "please add all the fields" });
   }
   req.user.password = undefined; //remove the user password from the returned post
   const post = new Post({
     title,
     body,
-    photo:pic,
+    photo: pic,
     postedBy: req.user
   });
   post
@@ -26,7 +26,7 @@ router.post("/createpost", requireLogin, (req, res) => {
     });
 });
 
-router.get("/allposts", (req, res) => {
+router.get("/allposts", requireLogin, (req, res) => {
   Post.find()
     .populate("postedBy", "_id name") //Show the user info only the name & id
     .then(posts => {
