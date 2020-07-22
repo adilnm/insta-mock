@@ -102,8 +102,7 @@ router.put("/comment", requireLogin, (req, res) => {
     {
       new: true
     }
-  )
-  .exec((err, result) => {
+  ).exec((err, result) => {
     if (err) {
       return res.status(422).json({ error: err });
     } else {
@@ -114,5 +113,24 @@ router.put("/comment", requireLogin, (req, res) => {
         });
     }
   });
+});
+
+router.delete("deletepost/:postId", requireLogin, (req, res) => {
+  Post.findOne({ _id: req.params.postId })
+    .populate("postedBy", "_id")
+    .exec((err, post) => {
+      if (err) {
+        return res.status(422).json({ error: err });
+      } else if (post.postedBy._id.toString() === req.user._id.toString()) {
+        post
+          .remove()
+          .then(result => {
+            res.json({ message: "successfully deleted" });
+          })
+          .catch(err => {
+            console.log(err);
+          });
+      }
+    });
 });
 module.exports = router;
