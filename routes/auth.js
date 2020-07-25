@@ -14,8 +14,8 @@ router.get("/user", requireLogin, (req, res) => {
 });
 
 router.post("/signup", (req, res) => {
-  const { name, email, password } = req.body;
-  if (!email || !password || !name) {
+  const { name, email, password, pic } = req.body;
+  if (!email || !password || !name || !pic) {
     return res.status(422).json({ error: "please add all the fields" });
   }
   User.findOne({ email: email })
@@ -27,14 +27,18 @@ router.post("/signup", (req, res) => {
         const user = new User({
           email,
           name,
-          password: hashedPassword
+          password: hashedPassword,
+          pic
         });
         user
           .save()
           .then(user => {
             const token = jwt.sign({ _id: user._id }, JWT_SECRET);
-            const { _id, name, email } = user;
-            res.json({ token, user: { _id, name, email } });
+            const { _id, name, email, followers, following } = user;
+            res.json({
+              token,
+              user: { _id, name, email, followers, following, pic }
+            });
           })
           .catch(error => console.log(error));
       });
@@ -59,8 +63,11 @@ router.post("/signin", (req, res) => {
         if (doMatch) {
           //   res.json({ message: "success" });
           const token = jwt.sign({ _id: savedUser._id }, JWT_SECRET);
-          const { _id, name, email, followers, following } = savedUser;
-          res.json({ token, user: { _id, name, email, followers, following } });
+          const { _id, name, email, followers, following, pic } = savedUser;
+          res.json({
+            token,
+            user: { _id, name, email, followers, following, pic }
+          });
         } else {
           return res
             .status(402)
