@@ -134,23 +134,15 @@ router.delete("/deletepost/:postId", requireLogin, (req, res) => {
     });
 });
 
-// router.delete("/deletecomment/:commentId", requireLogin, (req, res) => {
-//   debugger
-//   Post.comments.findOne({ _id: req.params.postId })
-//     .populate("postedBy", "_id")
-//     .exec((err, post) => {
-//       if (err) {
-//         return res.status(422).json({ error: err });
-//       } else {
-//         post
-//           .then(result => {
-//             res.json(result);
-//           })
-//           .catch(err => {
-//             console.log(err);
-//           });
-//       }
-//     });
-// });
-
+router.get("/followedposts", requireLogin, (req, res) => {
+  Post.find({ postedBy: { $in: req.user.following } })
+    .populate("postedBy", "_id name") //Show the user info only the name & id
+    .populate("comments.postedBy", "_id name")
+    .then(posts => {
+      res.json({ posts });
+    })
+    .catch(error => {
+      console.log(error);
+    });
+});
 module.exports = router;
