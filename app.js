@@ -18,7 +18,7 @@ mongoose.connection.on("error", err => {
 require("./models/user");
 require("./models/post");
 
-app.use(express.json())
+app.use(express.json()) //this is a middleware used to convert he posted data from the frontend to a json fromat
 app.use(require('./routes/auth'))
 app.use(require('./routes/post'))
 app.use(require('./routes/user'))
